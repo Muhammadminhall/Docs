@@ -15,26 +15,26 @@ const Cards = ({ card, refrance }) => {
       <div className="flex-1 flex items-center justify-center bg-zinc-900">
         {file.length > 0 ? (
           file.map((f, idx) => {
-            // Check if f is a string (static URL) or File object
-            const fileURL = typeof f === "string" ? f : URL.createObjectURL(f);
+            let fileURL = f;
+
+            if (f instanceof File) fileURL = URL.createObjectURL(f);
 
             if (
+              fileURL.startsWith("data:image/") ||
               fileURL.endsWith(".jpg") ||
-              fileURL.endsWith(".jpeg") ||
-              fileURL.endsWith(".png") ||
-              fileURL.endsWith(".gif")
+              fileURL.endsWith(".png")
             ) {
               return (
                 <img
                   key={idx}
                   src={fileURL}
-                  alt={description}
+                  alt={description || "file"}
                   className="w-full h-full object-cover"
                 />
               );
             }
 
-            if (f.type === "application/pdf") {
+            if (f.type === "application/pdf" || fileURL.endsWith(".pdf")) {
               return (
                 <div
                   key={idx}
@@ -61,34 +61,29 @@ const Cards = ({ card, refrance }) => {
         )}
       </div>
 
-      {/* File Info + Download Button */}
+      {/* Description & Download */}
       <div className="p-2 bg-zinc-900 flex flex-col gap-1">
         <p className="text-sm text-white font-medium truncate">
           {description || "Untitled"}
         </p>
+
         {file.length > 0 && (
-          <p className="text-xs text-gray-400 truncate">
-            {typeof file[0] === "string"
-              ? file[0].split("/").pop()
-              : file[0].name}
-          </p>
-        )}
-        {file.length > 0 && (
-          <a
-            href={
-              typeof file[0] === "string"
-                ? file[0]
-                : URL.createObjectURL(file[0])
-            }
-            download={
-              typeof file[0] === "string"
-                ? file[0].split("/").pop()
-                : file[0].name
-            }
-            className="mt-1 text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-center transition"
-          >
-            Download
-          </a>
+          <>
+            <p className="text-xs text-gray-400 truncate">
+              {file[0] instanceof File
+                ? file[0].name
+                : file[0].split("/").pop()}
+            </p>
+            <a
+              href={
+                file[0] instanceof File ? URL.createObjectURL(file[0]) : file[0]
+              }
+              download={file[0] instanceof File ? file[0].name : undefined}
+              className="mt-1 text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-center transition"
+            >
+              Download
+            </a>
+          </>
         )}
       </div>
     </motion.div>

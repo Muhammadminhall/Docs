@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Cards from "./Cards";
 
 const ForeBackGround = () => {
@@ -7,26 +7,42 @@ const ForeBackGround = () => {
   const [showInput, setShowInput] = useState(false);
   const [file, setFile] = useState([]);
 
-  // Initialize with 3 permanent cards (static images)
-  const [cardDetails, setCardDetails] = useState([
-    { description: "Document 1", file: ["/file1.jpg"] },
-    { description: "Document 2", file: ["/file2.jpg"] },
-    { description: "Document 3", file: ["/file3.jpg"] },
-  ]);
+  // Initialize cardDetails from localStorage or default
+  const [cardDetails, setCardDetails] = useState(() => {
+    const saved = localStorage.getItem("cardDetails");
+    if (saved) return JSON.parse(saved);
+    return [
+      { description: "Document 1", file: ["/file1.jpg"] },
+      { description: "Document 2", file: ["/file2.jpg"] },
+      { description: "Document 3", file: ["/file3.jpg"] },
+    ];
+  });
+
+  // Save to localStorage whenever cardDetails changes
+  useEffect(() => {
+    localStorage.setItem("cardDetails", JSON.stringify(cardDetails));
+  }, [cardDetails]);
 
   const handleDescription = (val) => setDescription(val);
 
-  const handleFile = (val) => {
-    const filesArray = Array.from(val);
-    setFile(filesArray); // store uploaded files
+  // Convert uploaded files to base64
+  const handleFile = async (files) => {
+    const filesArray = Array.from(files);
+    const filePromises = filesArray.map(
+      (file) =>
+        new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target.result); // Base64 string
+          reader.readAsDataURL(file);
+        })
+    );
+    const base64Files = await Promise.all(filePromises);
+    setFile(base64Files);
   };
 
   const addCardData = () => {
-    if (!description && file.length === 0) return; // prevent empty cards
-
+    if (!description && file.length === 0) return;
     setCardDetails((prev) => [...prev, { description, file: [...file] }]);
-
-    // reset inputs
     setFile([]);
     setDescription("");
     setShowInput(false);
@@ -42,9 +58,7 @@ const ForeBackGround = () => {
       <div className="flex w-full py-4 justify-between px-10">
         <h1 className="text-white text-xl">DRAG</h1>
 
-        {/* + Button & Input */}
         <div className="relative flex items-center gap-4">
-          {/* ADD new docs button */}
           <button
             onClick={createCard}
             className="text-white px-3 py-2 border-2 border-white rounded active:scale-110 duration-300"
@@ -52,7 +66,6 @@ const ForeBackGround = () => {
             ADD new docs
           </button>
 
-          {/* Floating Input Box */}
           <div
             className={`absolute top-12 right-0 w-64 p-4 bg-zinc-800 text-white rounded shadow-lg transition-all duration-300 ${
               showInput
@@ -88,7 +101,6 @@ const ForeBackGround = () => {
         </div>
       </div>
 
-      {/* Cards Section */}
       <div className="p-5 flex gap-3 flex-wrap">
         {cardDetails.map((card, index) => (
           <Cards key={index} card={card} refrance={ref} />
