@@ -1,3 +1,4 @@
+import React from "react";
 import { FaRegFileAlt } from "react-icons/fa";
 import { motion } from "motion/react";
 
@@ -13,24 +14,30 @@ const Cards = ({ card, refrance }) => {
       {/* File Preview */}
       <div className="flex-1 flex items-center justify-center bg-zinc-900">
         {file.length > 0 ? (
-          file.map((umm) => {
-            const fileURL = URL.createObjectURL(umm);
+          file.map((f, idx) => {
+            // Check if f is a string (static URL) or File object
+            const fileURL = typeof f === "string" ? f : URL.createObjectURL(f);
 
-            if (umm.type.startsWith("image/")) {
+            if (
+              fileURL.endsWith(".jpg") ||
+              fileURL.endsWith(".jpeg") ||
+              fileURL.endsWith(".png") ||
+              fileURL.endsWith(".gif")
+            ) {
               return (
                 <img
-                  key={`${umm.name}-${umm.lastModified}`}
+                  key={idx}
                   src={fileURL}
-                  alt={umm.name}
+                  alt={description}
                   className="w-full h-full object-cover"
                 />
               );
             }
 
-            if (umm.type === "application/pdf") {
+            if (f.type === "application/pdf") {
               return (
                 <div
-                  key={`${umm.name}-${umm.lastModified}`}
+                  key={idx}
                   className="flex items-center justify-center w-full h-full bg-red-200 text-red-800 font-bold"
                 >
                   PDF
@@ -40,7 +47,7 @@ const Cards = ({ card, refrance }) => {
 
             return (
               <div
-                key={`${umm.name}-${umm.lastModified}`}
+                key={idx}
                 className="flex items-center justify-center w-full h-full bg-blue-200 text-blue-800 font-bold"
               >
                 <FaRegFileAlt className="h-10 w-10" />
@@ -60,14 +67,24 @@ const Cards = ({ card, refrance }) => {
           {description || "Untitled"}
         </p>
         {file.length > 0 && (
-          <p className="text-xs text-gray-400 truncate">{file[0].name}</p>
+          <p className="text-xs text-gray-400 truncate">
+            {typeof file[0] === "string"
+              ? file[0].split("/").pop()
+              : file[0].name}
+          </p>
         )}
-
-        {/* Download button */}
         {file.length > 0 && (
           <a
-            href={URL.createObjectURL(file[0])}
-            download={file[0].name}
+            href={
+              typeof file[0] === "string"
+                ? file[0]
+                : URL.createObjectURL(file[0])
+            }
+            download={
+              typeof file[0] === "string"
+                ? file[0].split("/").pop()
+                : file[0].name
+            }
             className="mt-1 text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-center transition"
           >
             Download

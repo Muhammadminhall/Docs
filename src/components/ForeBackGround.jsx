@@ -1,42 +1,38 @@
 import React, { useRef, useState } from "react";
-import { motion } from "motion/react";
 import Cards from "./Cards";
+
 const ForeBackGround = () => {
   const ref = useRef(null);
   const [description, setDescription] = useState("");
   const [showInput, setShowInput] = useState(false);
   const [file, setFile] = useState([]);
 
-  const [cardDetails, setCardDetails] = useState([]);
+  // Initialize with 3 permanent cards (static images)
+  const [cardDetails, setCardDetails] = useState([
+    { description: "Document 1", file: ["/file1.jpg"] },
+    { description: "Document 2", file: ["/file2.jpg"] },
+    { description: "Document 3", file: ["/file3.jpg"] },
+  ]);
 
-  const handleDescription = (val) => {
-    setDescription(val);
-    console.log(val);
-  };
+  const handleDescription = (val) => setDescription(val);
 
   const handleFile = (val) => {
     const filesArray = Array.from(val);
-    setFile((prev) => [...prev, ...filesArray]); // ✅ fix nested array
+    setFile(filesArray); // store uploaded files
   };
 
   const addCardData = () => {
-    setShowInput(false);
+    if (!description && file.length === 0) return; // prevent empty cards
 
-    setCardDetails((prev) => {
-      const updated = [...prev, { description, file: [...file] }];
-      localStorage.setItem("data", JSON.stringify(updated)); // save correct array
-      return updated; // update state
-    });
+    setCardDetails((prev) => [...prev, { description, file: [...file] }]);
 
+    // reset inputs
     setFile([]);
     setDescription("");
-
-    console.log("description:", description, "files:", file);
+    setShowInput(false);
   };
 
-  const createCard = () => {
-    setShowInput(true);
-  };
+  const createCard = () => setShowInput(true);
 
   return (
     <div
@@ -44,17 +40,16 @@ const ForeBackGround = () => {
       className="absolute h-full w-full bg-transparent overflow-hidden"
     >
       <div className="flex w-full py-4 justify-between px-10">
-        <div>
-          <h1 className="text-white text-xl">DOCS</h1>
-        </div>
+        <h1 className="text-white text-xl">DRAG</h1>
 
         {/* + Button & Input */}
-        <div className="relative">
+        <div className="relative flex items-center gap-4">
+          {/* ADD new docs button */}
           <button
             onClick={createCard}
-            className="absolute block text-white px-3 active:scale-110 duration-300 border-white border-2 rounded py-2  justify-center items-center"
+            className="text-white px-3 py-2 border-2 border-white rounded active:scale-110 duration-300"
           >
-            +
+            ADD new docs
           </button>
 
           {/* Floating Input Box */}
@@ -65,7 +60,6 @@ const ForeBackGround = () => {
                 : "opacity-0 scale-90 pointer-events-none"
             }`}
           >
-            <div className="mb-5"></div>
             <input
               type="text"
               value={description}
@@ -74,19 +68,19 @@ const ForeBackGround = () => {
               placeholder="Enter description..."
             />
             <input
-              multiple // ✅ allow multiple files
+              multiple
               onChange={(e) => handleFile(e.target.files)}
               type="file"
               className="block w-full text-sm text-gray-600
-               file:mr-4 file:py-2 file:px-4
-               file:rounded file:border-0
-               file:text-sm file:font-semibold
-               file:bg-blue-50 file:text-blue-700
-               hover:file:bg-blue-100"
+                file:mr-4 file:py-2 file:px-4
+                file:rounded file:border-0
+                file:text-sm file:font-semibold
+                file:bg-blue-50 file:text-blue-700
+                hover:file:bg-blue-100 mb-5"
             />
             <button
               onClick={addCardData}
-              className="bg-white py-2 px-4 mt-5 text-blue-600 font-bold rounded "
+              className="bg-white py-2 px-4 text-blue-600 font-bold rounded w-full"
             >
               ADD
             </button>
@@ -95,7 +89,7 @@ const ForeBackGround = () => {
       </div>
 
       {/* Cards Section */}
-      <div className="p-5 flex gap-3">
+      <div className="p-5 flex gap-3 flex-wrap">
         {cardDetails.map((card, index) => (
           <Cards key={index} card={card} refrance={ref} />
         ))}
