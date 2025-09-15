@@ -1,30 +1,22 @@
 import React from "react";
-import { FaRegFileAlt, FaTrash } from "react-icons/fa";
+import { FaRegFileAlt } from "react-icons/fa";
 import { motion } from "motion/react";
 
-const Cards = ({ card, refrance, onDelete }) => {
-  const { id, description, file = [] } = card;
+const Cards = ({ card, refrance }) => {
+  const { description, file = [] } = card;
 
   return (
     <motion.div
       drag
       dragConstraints={refrance}
-      className="w-[180px] h-[230px] bg-zinc-800 rounded-xl shadow-md border border-gray-700 overflow-hidden flex flex-col relative"
+      className="w-[180px] h-[230px] bg-zinc-800 rounded-xl shadow-md border border-gray-700 overflow-hidden flex flex-col"
     >
-      {/* Delete Button */}
-      <button
-        onClick={() => onDelete(id)}
-        className="absolute top-2 right-2 text-red-500 hover:text-red-700 z-10"
-        title="Delete"
-      >
-        <FaTrash />
-      </button>
-
       {/* File Preview */}
       <div className="flex-1 flex items-center justify-center bg-zinc-900">
         {file.length > 0 ? (
           file.map((f, idx) => {
             let fileURL = f;
+
             if (f instanceof File) fileURL = URL.createObjectURL(f);
 
             if (
@@ -78,10 +70,14 @@ const Cards = ({ card, refrance, onDelete }) => {
         {file.length > 0 && (
           <>
             <p className="text-xs text-gray-400 truncate">
-              {file[0] instanceof File ? file[0].name : file[0].split("/").pop()}
+              {file[0] instanceof File
+                ? file[0].name
+                : file[0].split("/").pop()}
             </p>
             <a
-              href={file[0] instanceof File ? URL.createObjectURL(file[0]) : file[0]}
+              href={
+                file[0] instanceof File ? URL.createObjectURL(file[0]) : file[0]
+              }
               download={file[0] instanceof File ? file[0].name : undefined}
               className="mt-1 text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-center transition"
             >
