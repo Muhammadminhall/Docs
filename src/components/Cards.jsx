@@ -5,16 +5,6 @@ import { motion } from "motion/react";
 const Cards = ({ card, refrance, onDelete }) => {
   const { id, description, file = [] } = card;
 
-  const handleDelete = () => {
-    // Remove from localStorage
-    const savedCards = JSON.parse(localStorage.getItem("cards")) || [];
-    const updatedCards = savedCards.filter((c) => c.id !== id);
-    localStorage.setItem("cards", JSON.stringify(updatedCards));
-
-    // Call parent callback to remove from state
-    if (onDelete) onDelete(id);
-  };
-
   return (
     <motion.div
       drag
@@ -23,7 +13,7 @@ const Cards = ({ card, refrance, onDelete }) => {
     >
       {/* Delete Button */}
       <button
-        onClick={handleDelete}
+        onClick={() => onDelete && onDelete(id)}
         className="absolute top-2 right-2 text-red-500 hover:text-red-700 z-10"
         title="Delete"
       >
