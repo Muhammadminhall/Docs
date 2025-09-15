@@ -13,7 +13,7 @@ const Cards = ({ card, refrance, onDelete }) => {
     >
       {/* Delete Button */}
       <button
-        onClick={() => onDelete && onDelete(id)}
+        onClick={() => onDelete(id)}
         className="absolute top-2 right-2 text-red-500 hover:text-red-700 z-10"
         title="Delete"
       >
